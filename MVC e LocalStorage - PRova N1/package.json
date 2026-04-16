@@ -1,7 +1,6 @@
 {
-  "name": "crud-tarefas",
+  "name": "todo-mvc",
   "version": "1.0.0",
-  "description": "CRUD de Tarefas com MVC e localStorage",
   "type": "module",
-  "main": "main.mjs"
+  "description": "Simple MVC To-Do List using localStorage"
 }

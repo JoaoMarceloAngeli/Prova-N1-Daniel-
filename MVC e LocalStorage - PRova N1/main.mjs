@@ -1,103 +1,58 @@
-// main.mjs - ponto de entrada da aplicação (View)
-import { TarefaController } from './src/controller/TarefaController.mjs';
+import TarefaController from './src/controller/TarefaController.mjs';
 
-const controller = new TarefaController();
-
-// Elementos do DOM
 const form = document.getElementById('form-tarefa');
-const inputDescricao = document.getElementById('input-descricao');
-const listaTarefas = document.getElementById('lista-tarefas');
-const contadorInfo = document.getElementById('contador-info');
+const input = document.getElementById('descricao');
+const lista = document.getElementById('lista-tarefas');
 
-// Renderiza a lista de tarefas na tela
-function renderizarTarefas() {
-    const tarefas = controller.listarTarefas();
-
-    listaTarefas.innerHTML = '';
-
-    if (tarefas.length === 0) {
-        listaTarefas.innerHTML = '<li class="vazio">Nenhuma tarefa cadastrada.</li>';
-        atualizarContador(tarefas);
-        return;
-    }
-
-    tarefas.forEach(tarefa => {
-        const li = document.createElement('li');
-        li.className = 'tarefa-item' + (tarefa.concluida ? ' concluida' : '');
-        li.dataset.id = tarefa.id;
-
-        li.innerHTML = `
-            <input type="checkbox" class="check-concluida" ${tarefa.concluida ? 'checked' : ''} data-id="${tarefa.id}" />
-            <span class="tarefa-texto">${tarefa.descricao}</span>
-            <div class="acoes">
-                <button class="btn-editar" data-id="${tarefa.id}">Editar</button>
-                <button class="btn-remover" data-id="${tarefa.id}">Remover</button>
-            </div>
-        `;
-
-        listaTarefas.appendChild(li);
-    });
-
-    atualizarContador(tarefas);
+function render() {
+  const tarefas = TarefaController.listarTarefas();
+  lista.innerHTML = '';
+  tarefas.forEach(t => {
+    const li = document.createElement('li');
+    li.className = 'task' + (t.concluida ? ' done' : '');
+    li.dataset.id = t.id;
+    li.innerHTML = `
+      <span>${t.descricao}</span>
+      <div class="actions">
+        <button class="toggle">${t.concluida ? '✔️' : '✅'}</button>
+        <button class="edit">✏️</button>
+        <button class="del">🗑️</button>
+      </div>
+    `;
+    lista.appendChild(li);
+  });
 }
 
-// Atualiza o texto do contador
-function atualizarContador(tarefas) {
-    const total = tarefas.length;
-    const concluidas = tarefas.filter(t => t.concluida).length;
-    contadorInfo.textContent = `${concluidas} de ${total} concluída(s)`;
-}
-
-// Evento de submit do formulário - CREATE
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const descricao = inputDescricao.value;
-
-    if (descricao.trim() === '') {
-        alert('Digite uma descrição para a tarefa!');
-        return;
-    }
-
-    controller.adicionarTarefa(descricao);
-    inputDescricao.value = '';
-    renderizarTarefas();
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const descricao = input.value.trim();
+  if (!descricao) return;
+  TarefaController.adicionarTarefa(descricao);
+  input.value = '';
+  render();
 });
 
-// Eventos na lista (toggle, editar, remover)
-listaTarefas.addEventListener('click', function(e) {
-    // Alternar conclusão
-    if (e.target.classList.contains('check-concluida')) {
-        const id = e.target.dataset.id;
-        controller.alternarConclusao(id);
-        renderizarTarefas();
+lista.addEventListener('click', e => {
+  const btn = e.target;
+  const li = btn.closest('li');
+  if (!li) return;
+  const id = li.dataset.id;
+  
+  if (btn.classList.contains('toggle')) {
+    TarefaController.alternarConclusao(id);
+    render();
+  } else if (btn.classList.contains('edit')) {
+    const tarefa = TarefaController.listarTarefas().find(t => t.id === id);
+    const novaDescricao = prompt('Editar tarefa:', tarefa.descricao);
+    if (novaDescricao !== null && novaDescricao.trim() !== '') {
+      TarefaController.atualizarTarefa(id, { descricao: novaDescricao.trim() });
+      render();
     }
-
-    // Remover tarefa - DELETE
-    if (e.target.classList.contains('btn-remover')) {
-        const id = e.target.dataset.id;
-        const confirmar = confirm('Deseja remover esta tarefa?');
-        if (confirmar) {
-            controller.removerTarefa(id);
-            renderizarTarefas();
-        }
-    }
-
-    // Editar tarefa - UPDATE
-    if (e.target.classList.contains('btn-editar')) {
-        const id = e.target.dataset.id;
-        const li = e.target.closest('.tarefa-item');
-        const spanTexto = li.querySelector('.tarefa-texto');
-        const textoAtual = spanTexto.textContent;
-
-        const novoTexto = prompt('Editar tarefa:', textoAtual);
-
-        if (novoTexto !== null && novoTexto.trim() !== '') {
-            controller.atualizarTarefa(id, { descricao: novoTexto.trim() });
-            renderizarTarefas();
-        }
-    }
+  } else if (btn.classList.contains('del')) {
+    TarefaController.removerTarefa(id);
+    render();
+  }
 });
 
-// Inicializa a lista ao carregar a página
-renderizarTarefas();
+// Initial render on page load
+render();

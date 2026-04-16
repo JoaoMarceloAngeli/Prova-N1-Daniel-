@@ -1,20 +1,12 @@
-// Service responsável por persistir os dados no localStorage
+const STORAGE_KEY = 'tarefas';
 
-const CHAVE = 'tarefas_mvc';
+export default class TarefaService {
+  static salvarTodas(tarefas) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tarefas));
+  }
 
-export class TarefaService {
-
-    // Salva o array completo de tarefas
-    salvarTodas(tarefas) {
-        localStorage.setItem(CHAVE, JSON.stringify(tarefas));
-    }
-
-    // Retorna o array de tarefas. Se não tiver nada, retorna array vazio
-    buscarTodas() {
-        const dados = localStorage.getItem(CHAVE);
-        if (dados) {
-            return JSON.parse(dados);
-        }
-        return [];
-    }
+  static buscarTodas() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  }
 }
