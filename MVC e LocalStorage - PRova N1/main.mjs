@@ -1,5 +1,5 @@
 // main.mjs - ponto de entrada da aplicação (View)
-import { TarefaController } from '../src/controller/TarefaController.mjs';
+import { TarefaController } from './src/controller/TarefaController.mjs';
 
 const controller = new TarefaController();
 
