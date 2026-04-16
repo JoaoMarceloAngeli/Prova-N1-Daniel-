@@ -14,9 +14,9 @@ function render() {
     li.innerHTML = `
       <span>${t.descricao}</span>
       <div class="actions">
-        <button class="toggle">${t.concluida ? '✔️' : '✅'}</button>
-        <button class="edit">✏️</button>
-        <button class="del">🗑️</button>
+        <button class="toggle">${t.concluida ? 'Reabrir' : 'Concluir'}</button>
+        <button class="edit">Editar</button>
+        <button class="del">Excluir</button>
       </div>
     `;
     lista.appendChild(li);
@@ -37,7 +37,7 @@ lista.addEventListener('click', e => {
   const li = btn.closest('li');
   if (!li) return;
   const id = li.dataset.id;
-  
+
   if (btn.classList.contains('toggle')) {
     TarefaController.alternarConclusao(id);
     render();
@@ -54,5 +54,4 @@ lista.addEventListener('click', e => {
   }
 });
 
-// Initial render on page load
 render();
